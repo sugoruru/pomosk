@@ -11,7 +11,7 @@ const AuthOPTIONS: AuthOptions = {
     }),
   ],
   callbacks: {
-    jwt: async ({ token, user, account, profile, isNewUser }) => {
+    jwt: async ({ token, user, account }) => {
       if (user) {
         token.user = user;
         const u = user as any;

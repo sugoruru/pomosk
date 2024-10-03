@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   // 毎分100requestの制限.
   try {
     await limitChecker.check(100, ip);
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json({
       ok: false,
       error: "Too many requests",
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, key: result[0].key }, { status: 200, headers: corsHeaders });
 }
 
-export async function OPTIONS(request: Request) {
+export async function OPTIONS() {
   return new Response(null, {
     status: 204,
     headers: corsHeaders

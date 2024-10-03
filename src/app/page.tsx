@@ -461,36 +461,36 @@ interface Session {
 
 function App() {
   // home states.
-  let [isOpen, setIsOpen] = useState(false);
-  let [isSentTellproID, setIsSentTellproID] = useState(false);
-  let [isSendingTellproID, setIsSendingTellproID] = useState(false);
-  let [isSendingPassKey, setIsSendingPassKey] = useState(false);
-  let [isLogin, setIsLogin] = useState(false);
-  let [loginLoading, setLoginLoading] = useState(true);
-  let [isStart, setIsStart] = useState(false);
-  let [inputTellproID, setInputTellproID] = useState("");
-  let [currentTellproID, setCurrentTellproID] = useState("");
-  let [inputPassKey, setInputPassKey] = useState("");
-  let [errorMessage, setErrorMessage] = useState("");
-  let [hostname, setHostname] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSentTellproID, setIsSentTellproID] = useState(false);
+  const [isSendingTellproID, setIsSendingTellproID] = useState(false);
+  const [isSendingPassKey, setIsSendingPassKey] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(true);
+  const [isStart, setIsStart] = useState(false);
+  const [inputTellproID, setInputTellproID] = useState("");
+  const [currentTellproID, setCurrentTellproID] = useState("");
+  const [inputPassKey, setInputPassKey] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [hostname, setHostname] = useState("");
 
   // main states.
-  let [tellproID, setTellproID] = useState("");
-  let [selectTagID, setSelectTagID] = useState("");
-  let [geminiText, setGeminiText] = useState("");
-  let [mySessions, setMySessions] = useState<Session[]>([]);
-  let [myTags, setMyTags] = useState<Tag[]>([]);
-  let [myTasks, setMyTasks] = useState<Task[]>([]);
-  let [autoPomodoro, setAutoPomodoro] = useState(true);
-  let [allCountGraphCheck, setAllCountGraphCheck] = useState(false);
-  let [allTimeGraphCheck, setAllTimeGraphCheck] = useState(false);
-  let [allTagsGraphCheck, setAllTagsGraphCheck] = useState(false);
-  let [isSendingTagAdd, setIsSendingTagAdd] = useState(false);
-  let [isSendingTagDelete, setIsSendingTagDelete] = useState(false);
-  let [isSendingTaskAdd, setIsSendingTaskAdd] = useState(false);
-  let [isSendingTaskDelete, setIsSendingTaskDelete] = useState(false);
-  let [isSendingSession, setIsSendingSession] = useState(false);
-  let [now, setNow] = useState(new Date());
+  const [tellproID, setTellproID] = useState("");
+  const [selectTagID, setSelectTagID] = useState("");
+  const [geminiText, setGeminiText] = useState("");
+  const [mySessions, setMySessions] = useState<Session[]>([]);
+  const [myTags, setMyTags] = useState<Tag[]>([]);
+  const [myTasks, setMyTasks] = useState<Task[]>([]);
+  const [autoPomodoro, setAutoPomodoro] = useState(true);
+  const [allCountGraphCheck, setAllCountGraphCheck] = useState(false);
+  const [allTimeGraphCheck, setAllTimeGraphCheck] = useState(false);
+  const [allTagsGraphCheck, setAllTagsGraphCheck] = useState(false);
+  const [isSendingTagAdd, setIsSendingTagAdd] = useState(false);
+  const [isSendingTagDelete, setIsSendingTagDelete] = useState(false);
+  const [isSendingTaskAdd, setIsSendingTaskAdd] = useState(false);
+  const [isSendingTaskDelete, setIsSendingTaskDelete] = useState(false);
+  const [isSendingSession, setIsSendingSession] = useState(false);
+  const [now, setNow] = useState(new Date());
   const { data: session } = useSession();
 
   const handleChangeTag = (e: React.ChangeEvent<HTMLSelectElement>) => {
