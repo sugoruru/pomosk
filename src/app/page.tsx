@@ -476,8 +476,10 @@ function App() {
 
   // main states.
   const [tellproID, setTellproID] = useState("");
+  const [userName, setUserName] = useState("");
   const [selectTagID, setSelectTagID] = useState("");
   const [geminiText, setGeminiText] = useState("");
+  const [geminiSupplementaryText, setGeminiSupplementaryText] = useState("");
   const [mySessions, setMySessions] = useState<Session[]>([]);
   const [myTags, setMyTags] = useState<Tag[]>([]);
   const [myTasks, setMyTasks] = useState<Task[]>([]);
@@ -517,6 +519,8 @@ function App() {
         if (res.data.ok) {
           setIsLogin(true);
           setTellproID(res.data.result[0].user_id);
+          setUserName(res.data.result[0].name);
+          setGeminiSupplementaryText(res.data.result[0].gemini_supplementary_text);
           setMyTags(res.data.user.tags);
           setMyTasks(res.data.user.tasks);
           setMySessions(res.data.user.sessions);
@@ -580,7 +584,7 @@ function App() {
               }
             });
             const tag_data = JSON.stringify(data);
-            const gemini = await axios.post(url + "/api/pomosk/gemini", { login_token: token, tag_data });
+            const gemini = await axios.post(url + "/api/pomosk/gemini", { login_token: token, tag_data, supplementary_text: res.data.result[0].gemini_supplementary_text });
             if (gemini.data.ok) {
               setGeminiText(gemini.data.gemini_text);
             }
@@ -607,31 +611,10 @@ function App() {
     const interval = setInterval(() => {
       setNow(new Date());
     }, 500);
-    const visibilitychangeEvent = () => {
-      // autoPomodoro
-      if (document.visibilityState === "visible") {
-        setAutoPomodoro(true);
-      }
-      if (document.visibilityState === "hidden") {
-        setAutoPomodoro(false);
-      }
-    };
-    const focusEvent = () => {
-      setAutoPomodoro(true);
-    };
-    const blurEvent = () => {
-      setAutoPomodoro(false);
-    };
-    document.addEventListener("visibilitychange", visibilitychangeEvent);
-    document.addEventListener("focus", focusEvent);
-    document.addEventListener("blur", blurEvent);
     return () => {
       clearInterval(interval);
-      document.removeEventListener("visibilitychange", visibilitychangeEvent);
-      document.removeEventListener("focus", focusEvent);
-      document.removeEventListener("blur", blurEvent);
     };
-  }, [session]);
+  }, []);
 
   useEffect(() => {
     const session = getNotFinishedSession();
@@ -887,6 +870,30 @@ function App() {
     }
   };
 
+  const changeName = async () => {
+    const name = prompt("名前を入力してください.");
+    if (name === null) {
+      return;
+    }
+    if (name.trim() === "") {
+      alert("名前を入力してください.");
+      return;
+    }
+    if (name.length > 20) {
+      alert("名前は20文字以内で入力してください.");
+      return;
+    }
+    setUserName(name);
+    let url = "";
+    if (window.location.hostname === "localhost") url = "https://localhost:3000";
+    else url = "https://www.tellpro.net";
+    const token = Cookie.get("pomosk_login_token");
+    const data = await axios.post(url + "/api/pomosk/change_name", { login_token: token, name });
+    if (!data.data.ok) {
+      alert("名前の変更に失敗しました.");
+    }
+  };
+
   return (
     <>
       <div className="bg-white h-[68px]">
@@ -902,8 +909,12 @@ function App() {
           <div className="flex justify-between px-10 flex-wrap h-[calc(100vh-68px)] items-center">
             <div className="order-1 mx-auto border-l border-r border-black px-10 my-32">
               <p className="mt-4 text-center text-4xl font-bold">タイマー</p>
-              <div className="text-center text-3xl mt-2">
-                <b>{tellproID}</b>のポモドーロ
+              <p className="text-center text-sm mt-2">(下の名前を押すと名前を変更できます)</p>
+              <div className="text-center text-3xl">
+                <b className="cursor-pointer" onClick={changeName}>
+                  {userName}
+                </b>
+                のポモドーロ
               </div>
               <div className="flex justify-center">
                 <label className="inline-flex items-center cursor-pointer">
@@ -950,7 +961,6 @@ function App() {
                 <select
                   id="tags"
                   onChange={handleChangeTag}
-                  disabled={getNotFinishedSession().length !== 0}
                   className="bg-gray-50 border outline-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
                   <option value="">Non TagName</option>
@@ -1104,6 +1114,37 @@ function App() {
                   <ReactMarkdown>{geminiText}</ReactMarkdown>
                 </div>
               </div>
+              <div className="grid justify-center mb-10">
+                <p>AI補足データ(残り{1000 - geminiSupplementaryText.length}字) (下のボタンから保存)</p>
+                <textarea
+                  className="border border-black rounded w-80 h-80"
+                  maxLength={1000}
+                  value={geminiSupplementaryText}
+                  onChange={(e) => {
+                    setGeminiSupplementaryText(e.target.value);
+                  }}
+                  placeholder={`(例)
+今日は予定があって、あまり作業ができなかった。
+                    `}
+                ></textarea>
+                <button
+                  className="bg-green-500 hover:bg-green-600 transition rounded mt-2 px-4 py-2 text-white"
+                  onClick={async () => {
+                    let url = "";
+                    if (window.location.hostname === "localhost") url = "https://localhost:3000";
+                    else url = "https://www.tellpro.net";
+                    const token = Cookie.get("pomosk_login_token");
+                    const data = await axios.post(url + "/api/pomosk/save_gemini_supplementary_text", { login_token: token, geminiSupplementaryText });
+                    if (data.data.ok) {
+                      alert("保存しました.");
+                    } else {
+                      alert("保存に失敗しました.");
+                    }
+                  }}
+                >
+                  保存
+                </button>
+              </div>
             </div>
           </div>
         </>
@@ -1122,7 +1163,7 @@ function App() {
                   タスク管理アプリ
                 </div>
                 <button
-                  className={`px-6 text-lg my-3 py-3 bg-blue-600 text-white rounded transition-all ${loginLoading ? "bg-gray-700" : "hover:bg-blue-700"}`}
+                  className={`px-6 text-lg my-3 py-3 bg-blue-600 text-white rounded transition-all ${loginLoading || session === undefined ? "bg-gray-700" : "hover:bg-blue-700"}`}
                   onClick={() => {
                     if (isLogin) {
                       setIsStart(true);
@@ -1131,9 +1172,9 @@ function App() {
                       setIsOpen(true);
                     }
                   }}
-                  disabled={loginLoading}
+                  disabled={loginLoading || session === undefined}
                 >
-                  {loginLoading ? "ロード中..." : isLogin ? "始める" : "ログイン"}
+                  {loginLoading || session === undefined ? "ロード中..." : isLogin ? "始める" : "ログイン"}
                 </button>
               </div>
               <img src="/timer.png" width={300} alt="" className="" />

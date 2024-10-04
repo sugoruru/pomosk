@@ -58,13 +58,14 @@ export async function POST(req: NextRequest) {
   }
   const email = user.email;
   const result = await db.query(sql, [email]);
+  const name = `匿名${Math.floor(Math.random() * 10000)}`;
   if (result.length === 0) {
     // 32文字のランダムな文字列を生成
     const key = returnRandomString(32);
     const insertSql = `
-    insert into api_keys (user_id, key, created_at) values ($1, $2, now());
+    insert into api_keys (user_id, key, created_at, name) values ($1, $2, now(), $3);
     `;
-    await db.query(insertSql, [email, key]);
+    await db.query(insertSql, [email, key, name]);
     return NextResponse.json({ ok: true, key }, { status: 200, headers: corsHeaders });
   }
 
